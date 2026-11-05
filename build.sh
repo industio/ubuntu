@@ -169,14 +169,14 @@ fi
 
 mkdir -p build/logs && exec > >(tee "build/logs/build-$(date +"%Y%m%d%H%M%S").log") 2>&1
 
-if [ "${KERNEL_ONLY}" == "Y" ]; then
-    if [ -z "${SUITE}" ]; then
-        usage
-        exit 1
-    fi
-    ./scripts/build-kernel.sh
-    exit 0
-fi
+#if [ "${KERNEL_ONLY}" == "Y" ]; then
+#    if [ -z "${SUITE}" ]; then
+#        usage
+#        exit 1
+#    fi
+#    ./scripts/build-kernel.sh
+#    exit 0
+#fi
 
 if [ "${ROOTFS_ONLY}" == "Y" ]; then
     if [ -z "${SUITE}" ] || [ -z "${FLAVOR}" ]; then
@@ -184,17 +184,17 @@ if [ "${ROOTFS_ONLY}" == "Y" ]; then
         exit 1
     fi
     ./scripts/build-rootfs.sh
-    exit 0
+    #exit 0
 fi
 
-if [ "${UBOOT_ONLY}" == "Y" ]; then
-    if [ -z "${BOARD}" ]; then
-        usage
-        exit 1
-    fi
-    ./scripts/build-u-boot.sh
-    exit 0
-fi
+#if [ "${UBOOT_ONLY}" == "Y" ]; then
+#    if [ -z "${BOARD}" ]; then
+#        usage
+#        exit 1
+#    fi
+#    ./scripts/build-u-boot.sh
+#    exit 0
+#fi
 
 # No board param passed
 if [ -z "${BOARD}" ] || [ -z "${SUITE}" ] || [ -z "${FLAVOR}" ]; then
@@ -203,18 +203,18 @@ if [ -z "${BOARD}" ] || [ -z "${SUITE}" ] || [ -z "${FLAVOR}" ]; then
 fi
 
 # Build the Linux kernel if not found
-if [[ ${LAUNCHPAD} != "Y" ]]; then
-    if [[ ! -e "$(find build/linux-image-*.deb | sort | tail -n1)" || ! -e "$(find build/linux-headers-*.deb | sort | tail -n1)" ]]; then
-        ./scripts/build-kernel.sh
-    fi
-fi
+#if [[ ${LAUNCHPAD} != "Y" ]]; then
+#    if [[ ! -e "$(find build/linux-image-*.deb | sort | tail -n1)" || ! -e "$(find build/linux-headers-*.deb | sort | tail -n1)" ]]; then
+#        ./scripts/build-kernel.sh
+#    fi
+#fi
 
 # Build U-Boot if not found
-if [[ ${LAUNCHPAD} != "Y" ]]; then
-    if [[ ! -e "$(find build/u-boot-"${BOARD}"_*.deb | sort | tail -n1)" ]]; then
-        ./scripts/build-u-boot.sh
-    fi
-fi
+#if [[ ${LAUNCHPAD} != "Y" ]]; then
+#    if [[ ! -e "$(find build/u-boot-"${BOARD}"_*.deb | sort | tail -n1)" ]]; then
+#        ./scripts/build-u-boot.sh
+#    fi
+#fi
 
 # Create the root filesystem
 ./scripts/build-rootfs.sh
