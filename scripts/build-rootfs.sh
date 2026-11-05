@@ -136,6 +136,10 @@ else
     echo "ubuntu-server-rockchip" >> config/package-lists/my.list.chroot
 fi
 
+# Fix "dpkg-divert: error: rename involves overwriting '/usr/sbin/start-stop-daemon' with different file '/usr/sbin/start-stop-daemon.distrib', not allowed" error
+cp ../../patches/lb_chroot_dpkg /usr/lib/live/build/lb_chroot_dpkg -f
+chmod 0755 /usr/lib/live/build/lb_chroot_dpkg
+
 # Build the rootfs
 lb build
 
