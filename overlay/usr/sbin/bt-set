@@ -1,0 +1,12 @@
+#!/bin/bash
+
+sleep 2
+echo 0 > /sys/class/rfkill/rfkill0/state
+sleep 0.2
+echo 1 > /sys/class/rfkill/rfkill0/state
+
+rtk_hciattach -s 1500000 /dev/ttyS1 any 1500000 &
+sleep 0.2
+hciconfig hci0 up
+
+exit 0

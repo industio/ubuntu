@@ -1,0 +1,11 @@
+[Unit]
+Description=Setup rockchip platform environment
+After=NetworkManager.service
+
+[Service]
+Type=forking
+ExecStart=/etc/init.d/rkwifibt.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

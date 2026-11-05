@@ -17,13 +17,21 @@ function config_image_hook__ido-evb6208() {
 
     if [ "${suite}" == "jammy" ] || [ "${suite}" == "noble" ]; then
 	cp "${overlay}/packages/" "${rootfs}/packages/" -rf
-        
+	cp "${overlay}/etc/" "${rootfs}/" -rf
+	cp "${overlay}/system/" "${rootfs}/" -rf
+	cp "${overlay}/usr/" "${rootfs}/" -rf
+	cp "${overlay}/vendor/" "${rootfs}/" -rf
+
 	# Install libmali
         chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm_1.9-1_arm64.deb
         chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm-dbgsym_1.9-1_arm64.deb
 
         # Install the rockchip camera engine
         chroot "${rootfs}" apt-get -y install /packages/rkaiq/camera_engine_rkaiq_rk3562_arm64.deb
+
+	# WiFi BT
+        chroot "${rootfs}" systemctl enable rkwifi-bt
+        chroot "${rootfs}" systemctl enable bt-set
 
         echo "IDO_VERSION=B1.0_V1.0.0" >> "${rootfs}/etc/os-release"
     fi
