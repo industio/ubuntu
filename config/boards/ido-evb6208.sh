@@ -56,6 +56,17 @@ function config_image_hook__ido-evb6208() {
 	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,netdev,dialout,input,cdrom,dip,users,render,bluetooth,lpadmin industio
 	chroot "${rootfs}" usermod -p "${HASH}" root
 	chroot "${rootfs}" deluser --remove-home oem
+	
+	rm -f "${rootfs}/etc/systemd/system/getty.target.wants/getty@tty1.service"
+
+	mkdir -p "${rootfs}/etc/systemd/system/serial-getty@ttyFIQ0.service.d"
+	cat > "${rootfs}/etc/systemd/system/serial-getty@ttyFIQ0.service.d/baud.conf" << 'EOF'
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty -o '-p -- \\u' --keep-baud 1500000,115200,57600,38400,9600 ttyFIQ0 $TERM
+EOF
+	ln -sf /lib/systemd/system/serial-getty@.service \
+	    "${rootfs}/etc/systemd/system/getty.target.wants/serial-getty@ttyFIQ0.service"
     fi
 
     return 0
