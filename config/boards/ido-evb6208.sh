@@ -43,6 +43,19 @@ function config_image_hook__ido-evb6208() {
 	rm -rf "${rootfs}/etc/systemd/system/oem-config.target.wants"
 	rm -f "${rootfs}/etc/systemd/system/default.target"
 	ln -sf /lib/systemd/system/graphical.target "${rootfs}/etc/systemd/system/default.target"
+	
+	MID=$(cat /proc/sys/kernel/random/uuid | tr -d '-')
+	printf '%s\n' "${MID}" > "${rootfs}/etc/machine-id"
+	chmod 444 "${rootfs}/etc/machine-id"
+
+	# add user industio
+	chroot "${rootfs}" adduser --disabled-password --gecos "" industio
+	HASH=$(openssl passwd -6 '123456')
+	chroot "${rootfs}" usermod -p "${HASH}" industio
+
+	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,netdev,dialout,input,cdrom,dip,users,render,bluetooth,lpadmin industio
+	chroot "${rootfs}" usermod -p "${HASH}" root
+	chroot "${rootfs}" deluser --remove-home oem
     fi
 
     return 0
