@@ -35,6 +35,14 @@ function config_image_hook__ido-evb6208() {
 	chroot "${rootfs}" systemctl enable resize-all
 
         echo "IDO_VERSION=B1.0_V1.0.0" >> "${rootfs}/etc/os-release"
+	
+	rm -f "${rootfs}/etc/debian_chroot"
+	echo "industio" > "${rootfs}/etc/hostname"
+	sed -i 's/localhost\.localdomain/industio/; s/localhost6\.localdomain6/industio/' "${rootfs}/etc/hosts"
+	mv "${rootfs}/lib/systemd/system/oem-config.service" "${rootfs}/opt/"
+	rm -rf "${rootfs}/etc/systemd/system/oem-config.target.wants"
+	rm -f "${rootfs}/etc/systemd/system/default.target"
+	ln -sf /lib/systemd/system/graphical.target "${rootfs}/etc/systemd/system/default.target"
     fi
 
     return 0
