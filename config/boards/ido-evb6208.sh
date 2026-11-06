@@ -32,6 +32,7 @@ function config_image_hook__ido-evb6208() {
 	# WiFi BT
         chroot "${rootfs}" systemctl enable rkwifi-bt
         chroot "${rootfs}" systemctl enable bt-set
+	chroot "${rootfs}" systemctl enable resize-all
 
         echo "IDO_VERSION=B1.0_V1.0.0" >> "${rootfs}/etc/os-release"
     fi
