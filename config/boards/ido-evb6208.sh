@@ -67,6 +67,10 @@ ExecStart=-/sbin/agetty -o '-p -- \\u' --keep-baud 1500000,115200,57600,38400,96
 EOF
 	ln -sf /lib/systemd/system/serial-getty@.service \
 	    "${rootfs}/etc/systemd/system/getty.target.wants/serial-getty@ttyFIQ0.service"
+
+	ln -sf /dev/null "${rootfs}/etc/udev/rules.d/80-net-setup-link.rules"
+
+	printf 'SystemMaxUse=32M\nForwardToSyslog=no\n' >> "${rootfs}/etc/systemd/journald.conf"
     fi
 
     return 0
