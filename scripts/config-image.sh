@@ -1,7 +1,9 @@
 #!/bin/bash
 
-set -eE 
+set -eE
 trap 'echo Error: in $0 on line $LINENO' ERR
+
+trap 'teardown_mountpoint rootfs 2>/dev/null || true' EXIT
 
 if [ "$(id -u)" -ne 0 ]; then 
     echo "Please run as root"
@@ -81,20 +83,20 @@ setup_mountpoint() {
         chown root:kmem /dev/mem
     fi
 
-    mount dev-live -t devtmpfs "$mountpoint/dev"
-    mount devpts-live -t devpts -o nodev,nosuid "$mountpoint/dev/pts"
-    mount proc-live -t proc "$mountpoint/proc"
-    mount sysfs-live -t sysfs "$mountpoint/sys"
-    mount securityfs -t securityfs "$mountpoint/sys/kernel/security"
+    mountpoint -q "$mountpoint/dev" || mount dev-live -t devtmpfs "$mountpoint/dev"
+    mountpoint -q "$mountpoint/dev/pts" || mount devpts-live -t devpts -o nodev,nosuid "$mountpoint/dev/pts"
+    mountpoint -q "$mountpoint/proc" || mount proc-live -t proc "$mountpoint/proc"
+    mountpoint -q "$mountpoint/sys" || mount sysfs-live -t sysfs "$mountpoint/sys"
+    mountpoint -q "$mountpoint/sys/kernel/security" || mount securityfs -t securityfs "$mountpoint/sys/kernel/security"
     # Provide more up to date apparmor features, matching target kernel
     # cgroup2 mount for LP: 1944004
-    mount -t cgroup2 none "$mountpoint/sys/fs/cgroup"
-    mount -t tmpfs none "$mountpoint/tmp"
-    mount -t tmpfs none "$mountpoint/var/lib/apt/lists"
-    mount -t tmpfs none "$mountpoint/var/cache/apt"
-    mv "$mountpoint/etc/resolv.conf" resolv.conf.tmp
+    mountpoint -q "$mountpoint/sys/fs/cgroup" || mount -t cgroup2 none "$mountpoint/sys/fs/cgroup"
+    mountpoint -q "$mountpoint/tmp" || mount -t tmpfs none "$mountpoint/tmp"
+    mountpoint -q "$mountpoint/var/lib/apt/lists" || mount -t tmpfs none "$mountpoint/var/lib/apt/lists"
+    mountpoint -q "$mountpoint/var/cache/apt" || mount -t tmpfs none "$mountpoint/var/cache/apt"
+    [ -e "$mountpoint/etc/resolv.conf" ] && mv "$mountpoint/etc/resolv.conf" resolv.conf.tmp
     cp /etc/resolv.conf "$mountpoint/etc/resolv.conf"
-    mv "$mountpoint/etc/nsswitch.conf" nsswitch.conf.tmp
+    [ -e "$mountpoint/etc/nsswitch.conf" ] && mv "$mountpoint/etc/nsswitch.conf" nsswitch.conf.tmp
     sed 's/systemd//g' nsswitch.conf.tmp > "$mountpoint/etc/nsswitch.conf"
 }
 
@@ -110,8 +112,8 @@ teardown_mountpoint() {
         mount --make-private "$submount"
         umount "$submount"
     done
-    mv resolv.conf.tmp "$mountpoint/etc/resolv.conf"
-    mv nsswitch.conf.tmp "$mountpoint/etc/nsswitch.conf"
+    [ -e resolv.conf.tmp ] && mv resolv.conf.tmp "$mountpoint/etc/resolv.conf"
+    [ -e nsswitch.conf.tmp ] && mv nsswitch.conf.tmp "$mountpoint/etc/nsswitch.conf"
 }
 
 # Prevent dpkg interactive dialogues
@@ -125,7 +127,8 @@ chroot_dir=rootfs
 overlay_dir=../overlay
 
 # Extract the compressed root filesystem
-rm -rf ${chroot_dir} && mkdir -p ${chroot_dir}
+teardown_mountpoint ${chroot_dir} 2>/dev/null || true
+rm -rf --one-file-system ${chroot_dir} && mkdir -p ${chroot_dir}
 tar -xpJf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" -C ${chroot_dir}
 
 # Mount the root filesystem
