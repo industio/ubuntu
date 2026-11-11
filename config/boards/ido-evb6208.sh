@@ -30,6 +30,8 @@ function config_image_hook__ido-evb6208() {
         chroot "${rootfs}" apt-get -y install /packages/rkaiq/camera_engine_rkaiq_rk3562_arm64.deb
 
         chroot "${rootfs}" apt-get -y install libevent-dev libre2-dev libminizip-dev
+        chroot "${rootfs}" tar -xvf /usr/local/qt5/lib/libQt5WebEngineCore.so.5.15.8.tar.gz -C /usr/local/qt5/lib/
+        chroot "${rootfs}" rm /usr/local/qt5/lib/libQt5WebEngineCore.so.5.15.8.tar.gz
 
 	# WiFi BT
         chroot "${rootfs}" systemctl enable rkwifi-bt
