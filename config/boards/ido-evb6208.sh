@@ -73,6 +73,23 @@ EOF
 	    "${rootfs}/etc/systemd/system/getty.target.wants/serial-getty@ttyFIQ0.service"
 
 	ln -sf /dev/null "${rootfs}/etc/udev/rules.d/80-net-setup-link.rules"
+	
+	chroot "${rootfs}" apt-get -y install net-tools
+	chroot "${rootfs}" apt-get -y install iperf3
+	chroot "${rootfs}" apt-get -y install xterm
+	chroot "${rootfs}" apt-get -y install samba
+	echo "
+[industio]
+path = /home/industio
+available = yes
+valid users = industio
+read only = no
+browsable = yes
+public = yes
+writable = yes
+" >> "${rootfs}/etc/samba/smb.conf"
+	
+	chroot "${rootfs}" bash -c 'echo -e "123456\n123456" | smbpasswd -a industio'
 
 	printf 'SystemMaxUse=32M\nForwardToSyslog=no\n' >> "${rootfs}/etc/systemd/journald.conf"
     fi
