@@ -38,15 +38,26 @@ function config_image_hook__ido-evb6208() {
         chroot "${rootfs}" systemctl enable bt-set
 	chroot "${rootfs}" systemctl enable resize-all
 
+	chroot "${rootfs}" apt-get -y install perl
+
         echo "IDO_VERSION=B1.0_V1.0.0" >> "${rootfs}/etc/os-release"
 	
 	rm -f "${rootfs}/etc/debian_chroot"
 	echo "industio" > "${rootfs}/etc/hostname"
 	sed -i 's/localhost\.localdomain/industio/; s/localhost6\.localdomain6/industio/' "${rootfs}/etc/hosts"
-	mv "${rootfs}/lib/systemd/system/oem-config.service" "${rootfs}/opt/"
-	rm -rf "${rootfs}/etc/systemd/system/oem-config.target.wants"
-	rm -f "${rootfs}/etc/systemd/system/default.target"
+	if [ -e ${rootfs}/lib/systemd/system/oem-config.service ]; then
+		mv "${rootfs}/lib/systemd/system/oem-config.service" "${rootfs}/opt/"
+		if [ -e ${rootfs}/etc/systemd/system/oem-config.target.wants ]; then
+			rm -rf "${rootfs}/etc/systemd/system/oem-config.target.wants"
+		fi
+	fi
+
+	if [ -e ${rootfs}/etc/systemd/system/default.target ]; then
+		rm -f "${rootfs}/etc/systemd/system/default.target"
+	fi
+
 	ln -sf /lib/systemd/system/graphical.target "${rootfs}/etc/systemd/system/default.target"
+
 	
 	MID=$(cat /proc/sys/kernel/random/uuid | tr -d '-')
 	printf '%s\n' "${MID}" > "${rootfs}/etc/machine-id"
@@ -57,9 +68,9 @@ function config_image_hook__ido-evb6208() {
 	HASH=$(openssl passwd -6 '123456')
 	chroot "${rootfs}" usermod -p "${HASH}" industio
 
-	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,netdev,dialout,input,cdrom,dip,users,render,bluetooth,lpadmin industio
+	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render industio
 	chroot "${rootfs}" usermod -p "${HASH}" root
-	chroot "${rootfs}" deluser --remove-home oem
+	#chroot "${rootfs}" id oem &>/dev/null && deluser --remove-home oem
 	
 	rm -f "${rootfs}/etc/systemd/system/getty.target.wants/getty@tty1.service"
 
