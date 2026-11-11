@@ -1,0 +1,13 @@
+prefix=/opt/rk3576_ubuntu22_qt5.15.8/ext
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 Quick3DUtils
+Description: Qt Quick3DUtils module
+Version: 5.15.8
+Libs: -L${libdir} -lQt5Quick3DUtils 
+Cflags: -DQT_QUICK3DUTILS_LIB -I${includedir}/QtQuick3DUtils -I${includedir}
+Requires: Qt5Core Qt5Gui
+

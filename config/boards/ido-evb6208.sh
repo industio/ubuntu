@@ -29,6 +29,8 @@ function config_image_hook__ido-evb6208() {
         # Install the rockchip camera engine
         chroot "${rootfs}" apt-get -y install /packages/rkaiq/camera_engine_rkaiq_rk3562_arm64.deb
 
+        chroot "${rootfs}" apt-get -y install libevent-dev libre2-dev libminizip-dev
+
 	# WiFi BT
         chroot "${rootfs}" systemctl enable rkwifi-bt
         chroot "${rootfs}" systemctl enable bt-set

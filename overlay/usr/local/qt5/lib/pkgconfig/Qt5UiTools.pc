@@ -1,0 +1,14 @@
+prefix=/opt/rk3576_ubuntu22_qt5.15.8/ext
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 UiTools
+Description: Qt UiTools module
+Version: 5.15.8
+Libs: -L${libdir} -lQt5UiTools 
+Libs.private: /opt/rk3576_ubuntu22_qt5.15.8/ext/lib/libQt5Widgets.so /opt/rk3576_ubuntu22_qt5.15.8/ext/lib/libQt5Gui.so /opt/rk3576_ubuntu22_qt5.15.8/ext/lib/libQt5Core.so -lpthread /opt/rk3576_ubuntu22_qt5.15.8/ext/lib/libQt5Widgets.so /opt/rk3576_ubuntu22_qt5.15.8/ext/lib/libQt5Gui.so /opt/rk3576_ubuntu22_qt5.15.8/ext/lib/libQt5Core.so -L/opt/sysroot_rk3576_ubuntu2204/usr/lib/aarch64-linux-gnu -lGL -L/opt/sysroot_rk3576_ubuntu2204/usr/lib -L/opt/sysroot_rk3576_ubuntu2204/usr/include/mysql -L/opt/sysroot_rk3576_ubuntu2204/lib/aarch64-linux-gnu  
+Cflags: -DQT_UITOOLS_LIB -I${includedir}/QtUiTools -I${includedir}
+Requires: Qt5Core Qt5Gui Qt5Widgets
+

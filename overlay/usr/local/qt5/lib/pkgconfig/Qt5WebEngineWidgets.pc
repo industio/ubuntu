@@ -1,0 +1,13 @@
+prefix=/opt/rk3576_ubuntu22_qt5.15.8/ext
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 WebEngineWidgets
+Description: Qt WebEngineWidgets module
+Version: 5.15.8
+Libs: -L${libdir} -lQt5WebEngineWidgets 
+Cflags: -DQT_WEBENGINEWIDGETS_LIB -I${includedir}/QtWebEngineWidgets -I${includedir}
+Requires: Qt5Core Qt5Gui Qt5WebEngineCore Qt5Widgets Qt5Network Qt5Quick
+

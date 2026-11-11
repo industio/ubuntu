@@ -1,0 +1,13 @@
+prefix=/opt/rk3576_ubuntu22_qt5.15.8/ext
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 Sql
+Description: Qt Sql module
+Version: 5.15.8
+Libs: -L${libdir} -lQt5Sql 
+Cflags: -DQT_SQL_LIB -I${includedir}/QtSql -I${includedir}
+Requires: Qt5Core
+
