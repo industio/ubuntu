@@ -1,0 +1,16 @@
+[Unit]
+Description=USB Device Startup Service
+After=udev.service systemd-user-sessions.service multi-user.target
+Wants=udev.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStartPre=/bin/sleep 5
+ExecStart=/usr/bin/usbdevice start
+
+User=root
+
+[Install]
+WantedBy=multi-user.target

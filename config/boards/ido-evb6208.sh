@@ -22,9 +22,16 @@ function config_image_hook__ido-evb6208() {
 	cp "${overlay}/usr/" "${rootfs}/" -rf
 	cp "${overlay}/vendor/" "${rootfs}/" -rf
 
+	# Install xserver
+	chroot "${rootfs}" apt-get -y install /packages/xserver/libgcrypt20_1.10.1-3+deb12u1_arm64.deb
+	chroot "${rootfs}" apt-get -y install /packages/xserver/xserver-common_21.1.7-3+deb12u2_all.deb
+	chroot "${rootfs}" apt-get -y install /packages/xserver/xserver-xorg-core_21.1.7-3+deb12u2_arm64.deb
+	chroot "${rootfs}" apt-get -y install /packages/xserver/xserver-xorg-legacy_21.1.7-3+deb12u2_arm64.deb
+	chroot "${rootfs}" apt-get -y install /packages/xserver/xserver-xorg-core-dbgsym_21.1.7-3+deb12u2_arm64.deb
+	chroot "${rootfs}" apt-get -y install /packages/xserver/xserver-xorg-legacy-dbgsym_21.1.7-3+deb12u2_arm64.deb
 	# Install libmali
-        #chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm_1.9-1_arm64.deb
-        #chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm-dbgsym_1.9-1_arm64.deb
+        chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm_1.9-1_arm64.deb
+        chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm-dbgsym_1.9-1_arm64.deb
 
         # Install the rockchip camera engine
         chroot "${rootfs}" apt-get -y install /packages/rkaiq/camera_engine_rkaiq_rk3562_arm64.deb
@@ -37,6 +44,7 @@ function config_image_hook__ido-evb6208() {
         chroot "${rootfs}" systemctl enable rkwifi-bt
         chroot "${rootfs}" systemctl enable bt-set
 	chroot "${rootfs}" systemctl enable resize-all
+	chroot "${rootfs}" systemctl enable usbdevice
 
 	chroot "${rootfs}" apt-get -y install perl
 
@@ -103,6 +111,61 @@ writable = yes
 	chroot "${rootfs}" bash -c 'echo -e "123456\n123456" | smbpasswd -a industio'
 
 	sed -i 's/WaylandEnable=true/WaylandEnable=false/g' ${rootfs}/etc/gdm3/custom.conf
+
+	# Disable glamor GPU accel for X11: stock glamor's GLES format handling
+	# does not match the Mali DDK's channel order, so with libmali installed
+	# the desktop shows R/B swapped colors (blue becomes red). Force CPU
+	# rendering (AccelMethod none) to keep colors correct.
+	mkdir -p "${rootfs}/etc/X11/xorg.conf.d"
+	cat > "${rootfs}/etc/X11/xorg.conf.d/20-modesetting.conf" << 'EOF'
+### Use Rockchip DRM driver
+Section "OutputClass"
+    Identifier  "RockchipDRM"
+    MatchDriver "rockchip"
+    Option      "PrimaryGPU"     "yes"
+EndSection
+
+Section "Device"
+    Identifier  "Rockchip Graphics"
+    Driver      "modesetting"
+
+### Use Rockchip RGA 2D HW accel
+#    Option      "AccelMethod"    "exa"
+
+### Use GPU HW accel
+    Option      "AccelMethod"    "glamor"
+
+    Option      "DRI"            "2"
+
+### Set to "always" to avoid tearing, could lead to up 50% performance loss
+    Option      "FlipFB"         "always"
+
+### Limit flip rate and drop frames for "FlipFB" to reduce performance lost
+#    Option      "MaxFlipRate"    "60"
+
+    Option      "NoEDID"         "true"
+    Option      "UseGammaLUT"    "true"
+
+### Set virtual screen size (scaled by VOP hardware)
+#    Option "VirtualSize" "DSI-1:600x1080"
+
+### Set physical display paddings <top,bottom,left,right>
+#    Option "Padding" "DSI-1:180,300,300,540"
+
+EndSection
+
+Section "Screen"
+    Identifier  "Default Screen"
+    Device      "Rockchip Graphics"
+    Monitor     "Default Monitor"
+EndSection
+
+### Valid values for rotation are "normal", "left", "right"
+Section "Monitor"
+    Identifier  "Default Monitor"
+    Option      "Rotate"         "normal"
+EndSection
+EOF
 
 	sed -i 's/#  AutomaticLoginEnable = true/AutomaticLoginEnable = true/g' ${rootfs}/etc/gdm3/custom.conf
 	sed -i 's/#  AutomaticLogin = user1/AutomaticLogin = industio/g' ${rootfs}/etc/gdm3/custom.conf
