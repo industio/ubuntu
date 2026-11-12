@@ -104,6 +104,13 @@ writable = yes
 
 	sed -i 's/WaylandEnable=true/WaylandEnable=false/g' ${rootfs}/etc/gdm3/custom.conf
 
+	sed -i 's/#  AutomaticLoginEnable = true/AutomaticLoginEnable = true/g' ${rootfs}/etc/gdm3/custom.conf
+	sed -i 's/#  AutomaticLogin = user1/AutomaticLogin = industio/g' ${rootfs}/etc/gdm3/custom.conf
+
+	chroot "${rootfs}" addgroup --system nopasswdlogin
+	chroot "${rootfs}" usermod -aG nopasswdlogin industio
+	echo "auth sufficient pam_succeed_if.so user ingroup nopasswdlogin" >> ${rootfs}/etc/pam.d/gdm-password
+
 	printf 'SystemMaxUse=32M\nForwardToSyslog=no\n' >> "${rootfs}/etc/systemd/journald.conf"
     fi
 
