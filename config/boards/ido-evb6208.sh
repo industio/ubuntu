@@ -23,8 +23,8 @@ function config_image_hook__ido-evb6208() {
 	cp "${overlay}/vendor/" "${rootfs}/" -rf
 
 	# Install libmali
-        chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm_1.9-1_arm64.deb
-        chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm-dbgsym_1.9-1_arm64.deb
+        #chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm_1.9-1_arm64.deb
+        #chroot "${rootfs}" apt-get -y install /packages/libmali/libmali-bifrost-g52-g24p0-x11-wayland-gbm-dbgsym_1.9-1_arm64.deb
 
         # Install the rockchip camera engine
         chroot "${rootfs}" apt-get -y install /packages/rkaiq/camera_engine_rkaiq_rk3562_arm64.deb
@@ -101,6 +101,8 @@ writable = yes
 " >> "${rootfs}/etc/samba/smb.conf"
 	
 	chroot "${rootfs}" bash -c 'echo -e "123456\n123456" | smbpasswd -a industio'
+
+	sed -i 's/WaylandEnable=true/WaylandEnable=false/g' ${rootfs}/etc/gdm3/custom.conf
 
 	printf 'SystemMaxUse=32M\nForwardToSyslog=no\n' >> "${rootfs}/etc/systemd/journald.conf"
     fi
