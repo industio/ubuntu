@@ -78,7 +78,7 @@ function config_image_hook__ido-evb6208() {
 
 	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render industio
 	chroot "${rootfs}" usermod -p "${HASH}" root
-	#chroot "${rootfs}" id oem &>/dev/null && deluser --remove-home oem
+	chroot "${rootfs}" /bin/sh -c '[ -d /home/oem ] && deluser --remove-home oem'
 	
 	rm -f "${rootfs}/etc/systemd/system/getty.target.wants/getty@tty1.service"
 
