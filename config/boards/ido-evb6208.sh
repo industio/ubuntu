@@ -97,6 +97,12 @@ EOF
 	chroot "${rootfs}" apt-get -y install iperf3
 	chroot "${rootfs}" apt-get -y install xterm
 	chroot "${rootfs}" apt-get -y install samba
+
+	chroot "${rootfs}" bash -c 'XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings set org.gnome.desktop.session idle-delay 0'
+	chroot "${rootfs}" bash -c 'XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings set org.gnome.desktop.screensaver lock-enabled false'
+	chroot "${rootfs}" bash -c 'XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing'
+	chroot "${rootfs}" bash -c 'XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type nothing'
+
 	echo "
 [industio]
 path = /home/industio
