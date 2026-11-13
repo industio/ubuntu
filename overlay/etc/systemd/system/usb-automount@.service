@@ -1,0 +1,12 @@
+[Unit]
+Description=Automount USB Drive %I
+After=local-fs.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/usb-automount.sh add %I
+ExecStop=/usr/local/bin/usb-automount.sh remove %I
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
