@@ -37,6 +37,8 @@ fi
 # shellcheck source=/dev/null
 source "../config/flavors/${FLAVOR}.sh"
 
+export ARCH=${ARCH:-arm64}
+
 #if [[ ${LAUNCHPAD} != "Y" ]]; then
 #    uboot_package="$(basename "$(find u-boot-"${BOARD}"_*.deb | sort | tail -n1)")"
 #    if [ ! -e "$uboot_package" ]; then
@@ -129,7 +131,7 @@ overlay_dir=../overlay
 # Extract the compressed root filesystem
 teardown_mountpoint ${chroot_dir} 2>/dev/null || true
 rm -rf --one-file-system ${chroot_dir} && mkdir -p ${chroot_dir}
-tar -xpJf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" -C ${chroot_dir}
+tar -xpJf "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-${ARCH}.rootfs.tar.xz" -C ${chroot_dir}
 
 # Mount the root filesystem
 setup_mountpoint $chroot_dir
@@ -160,8 +162,10 @@ fi
 #    chroot ${chroot_dir} apt-mark hold "$(echo "${linux_rockchip_headers_package}" | sed -rn 's/(.*)_[[:digit:]].*/\1/p')"
 #fi
 
-# Update the initramfs
-chroot ${chroot_dir} update-initramfs -u
+# Update the initramfs (armhf rootfs has no kernel installed, the SDK boot.img provides it)
+if compgen -G "${chroot_dir}/boot/vmlinuz-*" > /dev/null; then
+    chroot ${chroot_dir} update-initramfs -u
+fi
 
 # Remove packages
 chroot ${chroot_dir} apt-get -y clean
@@ -172,7 +176,7 @@ chroot ${chroot_dir} apt-get -y autoremove
 teardown_mountpoint $chroot_dir
 
 # Compress the root filesystem and then build a disk image
-../scripts/mk-image.sh ${chroot_dir} "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64-${BOARD}.img"
+../scripts/mk-image.sh ${chroot_dir} "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-${ARCH}-${BOARD}.img"
 #cd ${chroot_dir} && tar -cpf "../ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64-${BOARD}.rootfs.tar" . && cd .. && rm -rf ${chroot_dir}
 #../scripts/build-image.sh "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64-${BOARD}.rootfs.tar"
 #rm -f "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64-${BOARD}.rootfs.tar"

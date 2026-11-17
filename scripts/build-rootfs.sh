@@ -27,7 +27,9 @@ fi
 # shellcheck source=/dev/null
 source "../config/flavors/${FLAVOR}.sh"
 
-if [[ -f ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz ]]; then
+export ARCH=${ARCH:-arm64}
+
+if [[ -f ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-${ARCH}.rootfs.tar.xz ]]; then
     exit 0
 fi
 
@@ -63,15 +65,39 @@ cp -r "$(dpkg -L livecd-rootfs | grep "auto$")" auto
 
 set +e
 
-export ARCH=arm64
 export IMAGEFORMAT=none
 export IMAGE_TARGETS=none
 
+case "${ARCH}" in
+    arm64)
+        QEMU_ARCH="arm64"
+        QEMU_BINARY="/usr/bin/qemu-aarch64-static"
+        ;;
+    armhf)
+        QEMU_ARCH="armhf"
+        QEMU_BINARY="/usr/bin/qemu-arm-static"
+        ;;
+    *)
+        echo "Error: unsupported ARCH: ${ARCH}"
+        exit 1
+        ;;
+esac
+
+if [ "${ARCH}" == "arm64" ]; then
+    # The rockchip kernel is only published for arm64
+    LINUX_FLAVOURS_ARGS="--linux-flavours ${KERNEL_FLAVOR}"
+else
+    # No armhf kernel exists in the archives or the PPAs, and the ubuntu-cpc
+    # auto config queues a virtual kernel; skip kernel packages entirely
+    # (the SDK boot.img provides the kernel)
+    LINUX_FLAVOURS_ARGS="--linux-packages none"
+fi
+
 # Populate the configuration directory for live build
 lb config \
-    --architecture arm64 \
-    --bootstrap-qemu-arch arm64 \
-    --bootstrap-qemu-static /usr/bin/qemu-aarch64-static \
+    --architecture "${ARCH}" \
+    --bootstrap-qemu-arch "${QEMU_ARCH}" \
+    --bootstrap-qemu-static "${QEMU_BINARY}" \
     --archive-areas "main restricted universe multiverse" \
     --parent-archive-areas "main restricted universe multiverse" \
     --mirror-bootstrap "http://ports.ubuntu.com" \
@@ -83,7 +109,7 @@ lb config \
     --mirror-binary "http://ports.ubuntu.com" \
     --parent-mirror-binary "http://ports.ubuntu.com" \
     --keyring-packages ubuntu-keyring \
-    --linux-flavours "${KERNEL_FLAVOR}"
+    ${LINUX_FLAVOURS_ARGS}
 
 if [ "${SUITE}" == "noble" ] || [ "${SUITE}" == "jammy" ]; then
     # Pin rockchip package archives
@@ -133,7 +159,14 @@ if [ "${PROJECT}" == "ubuntu" ]; then
     ) >> config/package-lists/my.list.chroot
 else
     # Specific packages to install for ubuntu server
-    echo "ubuntu-server-rockchip" >> config/package-lists/my.list.chroot
+    if [ "${ARCH}" == "armhf" ]; then
+        # The ubuntu-server-rockchip metapackage is arm64 only, use the
+        # armhf equivalents instead
+        echo "ubuntu-server" >> config/package-lists/my.list.chroot
+        echo "ubuntu-rockchip-settings-server" >> config/package-lists/my.list.chroot
+    else
+        echo "ubuntu-server-rockchip" >> config/package-lists/my.list.chroot
+    fi
 fi
 
 # Fix "dpkg-divert: error: rename involves overwriting '/usr/sbin/start-stop-daemon' with different file '/usr/sbin/start-stop-daemon.distrib', not allowed" error
@@ -146,5 +179,5 @@ lb build
 set -eE 
 
 # Tar the entire rootfs
-(cd chroot/ &&  tar -p -c --sort=name --xattrs ./*) | xz -3 -T0 > "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz"
-mv "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-arm64.rootfs.tar.xz" ../
+(cd chroot/ &&  tar -p -c --sort=name --xattrs ./*) | xz -3 -T0 > "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-${ARCH}.rootfs.tar.xz"
+mv "ubuntu-${RELASE_VERSION}-preinstalled-${FLAVOR}-${ARCH}.rootfs.tar.xz" ../
