@@ -99,6 +99,10 @@ EOF
 	chroot "${rootfs}" apt-get -y install samba
 	chroot "${rootfs}" apt-get -y install v4l-utils
 
+	chroot "${rootfs}" apt-get -y install docker.io
+	chroot "${rootfs}" update-alternatives --set iptables /usr/sbin/iptables-legacy
+	chroot "${rootfs}" update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+
 	chroot "${rootfs}" bash -c 'XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings set org.gnome.desktop.session idle-delay 0'
 	chroot "${rootfs}" bash -c 'XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings set org.gnome.desktop.screensaver lock-enabled false'
 	chroot "${rootfs}" bash -c 'XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing'
@@ -182,6 +186,26 @@ EOF
 	echo "auth sufficient pam_succeed_if.so user ingroup nopasswdlogin" >> ${rootfs}/etc/pam.d/gdm-password
 
 	printf 'SystemMaxUse=32M\nForwardToSyslog=no\n' >> "${rootfs}/etc/systemd/journald.conf"
+
+	cat > ${rootfs}/etc/docker/daemon.json << 'EOF'
+{
+ "registry-mirrors": ["https://docker.registry.cyou",
+ "https://docker-cf.registry.cyou",
+ "https://dockercf.jsdelivr.fyi",
+ "https://docker.jsdelivr.fyi",
+ "https://dockertest.jsdelivr.fyi",
+ "https://mirror.aliyuncs.com",
+ "https://dockerproxy.com",
+ "https://mirror.baidubce.com",
+ "https://docker.m.daocloud.io",
+ "https://docker.nju.edu.cn",
+ "https://docker.mirrors.sjtug.sjtu.edu.cn",
+ "https://docker.mirrors.ustc.edu.cn",
+ "https://mirror.iscas.ac.cn",
+ "https://docker.rainbond.cc"]
+}
+EOF
+
     fi
 
     return 0
