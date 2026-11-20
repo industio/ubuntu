@@ -19,4 +19,4 @@ Ubuntu Rockchip is a community project porting Ubuntu to Rockchip hardware with 
 
 ## Build
 
-sudo ./build.sh -b ido-evb3506 -s jammy -f desktop -ro
+sudo ./build.sh -b ido-evb3506 -s jammy -f server -ro
