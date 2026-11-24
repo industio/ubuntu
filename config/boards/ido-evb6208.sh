@@ -21,7 +21,6 @@ function config_image_hook__ido-evb6208() {
 	cp "${overlay}/system/" "${rootfs}/" -rf
 	cp "${overlay}/usr/" "${rootfs}/" -rf
 	cp "${overlay}/vendor/" "${rootfs}/" -rf
-	cp "${overlay}/lib/" "${rootfs}/" -rf
 
 	# Install xserver
 	chroot "${rootfs}" apt-get -y install /packages/xserver/libgcrypt20_1.10.1-3+deb12u1_arm64.deb
