@@ -23,7 +23,6 @@ function config_image_hook__ido-evb3506() {
 	#cp "${overlay}/system/" "${rootfs}/" -rf
 	cp "${overlay}/usr/" "${rootfs}/" -rf
 	#cp "${overlay}/vendor/" "${rootfs}/" -rf
-	cp "${overlay}/lib/" "${rootfs}/" -rf
 
         # Install the rockchip camera engine
         #chroot "${rootfs}" apt-get -y install /packages/rkaiq/
