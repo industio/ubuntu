@@ -94,6 +94,9 @@ EOF
 	chroot "${rootfs}" apt-get -y install xterm
 	chroot "${rootfs}" apt-get -y install samba
 	chroot "${rootfs}" apt-get -y install v4l-utils
+	chroot "${rootfs}" apt-get -y install openssh-server
+	chroot "${rootfs}" apt-get -y install usbutils
+	chroot "${rootfs}" apt-get -y install bluez
 
 	# Disable GNOME idle/screen-blank settings (desktop images only, the
 	# schemas are not installed on server images)
@@ -125,6 +128,11 @@ writable = yes
 	echo "auth sufficient pam_succeed_if.so user ingroup nopasswdlogin" >> ${rootfs}/etc/pam.d/gdm-password
 
 	printf 'SystemMaxUse=32M\nForwardToSyslog=no\n' >> "${rootfs}/etc/systemd/journald.conf"
+
+	# insmod modules
+	rootfs_realpath=$(realpath ${rootfs})
+	chmod a+wx ${rootfs_realpath}/usr/lib/modules
+	../../build.sh modules:${rootfs_realpath}
     fi
 
     return 0
