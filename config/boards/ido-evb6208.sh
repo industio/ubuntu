@@ -98,6 +98,7 @@ EOF
 	chroot "${rootfs}" apt-get -y install xterm
 	chroot "${rootfs}" apt-get -y install samba
 	chroot "${rootfs}" apt-get -y install v4l-utils
+	chroot "${rootfs}" apt-get -y install exfat-fuse
 
 	chroot "${rootfs}" apt-get -y install docker.io
 	chroot "${rootfs}" update-alternatives --set iptables /usr/sbin/iptables-legacy
