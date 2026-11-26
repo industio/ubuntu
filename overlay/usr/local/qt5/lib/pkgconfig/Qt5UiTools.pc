@@ -1,0 +1,14 @@
+prefix=/opt/rk3506_ubuntu22/ext
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 UiTools
+Description: Qt UiTools module
+Version: 5.15.8
+Libs: -L${libdir} -lQt5UiTools 
+Libs.private: /opt/rk3506_ubuntu22/ext/lib/libQt5Widgets.so /opt/rk3506_ubuntu22/ext/lib/libQt5Gui.so /opt/rk3506_ubuntu22/ext/lib/libQt5Core.so -lpthread /opt/rk3506_ubuntu22/ext/lib/libQt5Widgets.so /opt/rk3506_ubuntu22/ext/lib/libQt5Gui.so /opt/rk3506_ubuntu22/ext/lib/libQt5Core.so -L/opt/sysroot_rk3506_ubuntu22/usr/lib -L/opt/sysroot_rk3506_ubuntu22/lib/arm-linux-gnueabihf -L/opt/sysroot_rk3506_ubuntu22/usr/lib/arm-linux-gnueabihf  
+Cflags: -DQT_UITOOLS_LIB -I${includedir}/QtUiTools -I${includedir}
+Requires: Qt5Core Qt5Gui Qt5Widgets
+
