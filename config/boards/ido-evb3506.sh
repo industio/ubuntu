@@ -97,6 +97,7 @@ EOF
 	chroot "${rootfs}" apt-get -y install openssh-server
 	chroot "${rootfs}" apt-get -y install usbutils
 	chroot "${rootfs}" apt-get -y install bluez
+	chroot "${rootfs}" apt-get -y purge needrestart
 
 	# Disable GNOME idle/screen-blank settings (desktop images only, the
 	# schemas are not installed on server images)
