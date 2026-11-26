@@ -99,6 +99,7 @@ EOF
 	chroot "${rootfs}" apt-get -y install bluez
 	chroot "${rootfs}" apt-get -y purge needrestart
 	chroot "${rootfs}" apt-get -y install libts0
+	chroot "${rootfs}" apt-get -y install exfat-fuse
 
 	# Disable GNOME idle/screen-blank settings (desktop images only, the
 	# schemas are not installed on server images)
