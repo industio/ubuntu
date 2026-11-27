@@ -69,9 +69,9 @@ function config_image_hook__ido-evb3506() {
 	chroot "${rootfs}" adduser --disabled-password --gecos "" industio
 	HASH=$(openssl passwd -6 '123456')
 	chroot "${rootfs}" usermod -p "${HASH}" industio
-
-	#chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render,netdev industio
-	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render industio
+	chroot "${rootfs}" groupadd --system netdev
+	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render,netdev industio
+	#chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render industio
 	chroot "${rootfs}" usermod -p "${HASH}" root
 	if [ -d "${rootfs}/home/oem" ]; then
 	    chroot "${rootfs}" deluser --remove-home oem
@@ -147,6 +147,11 @@ writable = yes
 	echo "ctrl_interface=DIR=/run/wpa_supplicant GROUP=netdev
 update_config=1
 " > ${rootfs}/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+
+	#fix adb
+	chroot "${rootfs}" rm -f /usr/sbin/start-stop-daemon
+	chroot "${rootfs}" mv /usr/sbin/start-stop-daemon.distrib /usr/sbin/start-stop-daemon
+	chroot "${rootfs}" dpkg-divert --remove /usr/sbin/start-stop-daemon
 
     fi
 

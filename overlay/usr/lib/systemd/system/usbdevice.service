@@ -6,8 +6,8 @@ Wants=udev.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-
-ExecStartPre=/bin/sleep 5
+ExecStartPre=modprobe libcomposite
+ExecStartPre=modprobe usb_f_fs
 ExecStart=/usr/bin/usbdevice start
 
 User=root
