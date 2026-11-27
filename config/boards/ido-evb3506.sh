@@ -70,6 +70,7 @@ function config_image_hook__ido-evb3506() {
 	HASH=$(openssl passwd -6 '123456')
 	chroot "${rootfs}" usermod -p "${HASH}" industio
 
+	#chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render,netdev industio
 	chroot "${rootfs}" usermod -aG sudo,adm,audio,video,plugdev,dialout,input,cdrom,dip,users,render industio
 	chroot "${rootfs}" usermod -p "${HASH}" root
 	if [ -d "${rootfs}/home/oem" ]; then
@@ -136,6 +137,17 @@ writable = yes
 	rootfs_realpath=$(realpath ${rootfs})
 	chmod a+wx ${rootfs_realpath}/usr/lib/modules
 	../../build.sh modules:${rootfs_realpath}
+
+	chroot "${rootfs}" apt-get -y install wpasupplicant
+	chroot "${rootfs}" systemctl disable  wpa_supplicant
+	chroot "${rootfs}" systemctl enable  wpa_supplicant@wlan0.service
+
+	#chroot "${rootfs}" mkdir -p /etc/wpa_supplicant/
+
+	echo "ctrl_interface=DIR=/run/wpa_supplicant GROUP=netdev
+update_config=1
+" > ${rootfs}/etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+
     fi
 
     return 0
