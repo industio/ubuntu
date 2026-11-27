@@ -211,8 +211,6 @@ EOF
 	chroot "${rootfs}" apt-get -y remove linux-rockchip
 	chroot "${rootfs}" apt-get -y remove linux-headers-rockchip
 	chroot "${rootfs}" apt-get -y remove linux-headers-5.10.0-1012-rockchip
-	chroot "${rootfs}" apt-get -y remove linux-headers-5.10-arm64
-	chroot "${rootfs}" apt-get -y remove linux-rockchip-headers-5.10.0-1012
 	chroot "${rootfs}" apt-get -y install make
 	chroot "${rootfs}" apt-get -y install gcc
 	chroot "${rootfs}" ln -sf /usr/bin/python3 /usr/bin/python
